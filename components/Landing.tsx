@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { PricingBody } from "@/components/PricingBody";
+import { pricingCfg } from "@/components/pricingCfg";
 import "@/app/landing.css";
 
 // Home page laid out like airtable.com: banner, centered hero, feature stack, card grid, stories, footer.
@@ -11,8 +13,8 @@ const brands = ["ANTHROPIC", "harvey", "MERCOR", "amazon", "Walmart", "NETFLIX",
 const cols: [string, string[]][] = [["Platform", ["AI App Building", "AI Agents", "Airtable Platform", "Portals", "Scale", "Automations"]], ["Solutions", ["Product", "Marketing", "Project Management", "Operations", "Sales", "Design & Creative"]], ["Resources", ["Resources Hub", "Templates", "AI Plays", "Blog", "Customer Stories", "Videos"]], ["Learn", ["How-to guides", "Developer docs", "Academy", "Community", "Help center"]], ["Company", ["Try it for free", "Pricing", "Contact sales", "Contact support", "About", "Careers"]]];
 const lists: [string, string[]][] = [["Scalable infrastructure", ["HyperDB with record limits in the hundreds of millions", "Scale workflows to tens of thousands of users", "Use AI models from leading providers (OpenAI, Gemini, Llama, Anthropic, and more)"]], ["Flexible administration", ["Admin roles, robust permissions, fine-grained RBAC", "Fine-grained controls to enable AI", "Programmatic provisioning and de-provisioning", "IDP synced groups"]], ["Security and compliance", ["ISO, HIPAA, SOC 2", "No customer data retained or used to train AI models", "Models run fully in your own AWS environment", "EKM, data loss prevention, audit logs, e-discovery", "European and Australian data residency support"]]];
 
-export function Landing() {
-  return <div className="at">
+export function Landing({ page }: { page?: "pricing" } = {}) {
+  return <div className={"at" + (page === "pricing" ? " is-pr" : "")}>
     <div className="at-banner">Bring your data into your assistant. <Link href="/pricing">Try it now →</Link><button aria-label="Close">×</button></div>
     <header className="at-nav"><Link href="/" className="at-logo"><Logo /></Link>
       <nav><button>Platform<Dn /></button><button>Solutions<Dn /></button><button>Resources<Dn /></button><Link href="/pricing">Enterprise</Link><Link href="/pricing">Pricing</Link></nav>
@@ -38,6 +40,7 @@ export function Landing() {
       {[["Builders & Breakthroughs", "Hear from top product leaders as they share the pivotal insights and decisions behind building great products—hosted by our CEO."], ["The 2026 AI guide for marketers", "Learn how to prep your marketing organization for AI integration and layer AI across your most critical marketing workflows."], ["In action: product central", "See how a product team delivers a complete view of product investments at every altitude, infusing AI at each step of the process."]].map(([t, d], i) => <Link key={t} href="/pricing" className={"at-r at-r--" + i}><div className="at-r__img" aria-hidden /><h4>{t}</h4><p>{d}</p></Link>)}</section>
     <section className="at-story"><div className="at-story__pane"><blockquote>“It makes it easy to deliver AI insights to every team quickly and without complex builds.”</blockquote><div className="at-story__who"><b>shop</b><p>Angela Yanes<br />Director of Product Operations</p></div><Link className="at-btn at-btn--white" href="/pricing">Explore all customer stories</Link></div></section>
     <section className="at-cta"><div><h2>Start building with it</h2><p>Teams at thousands of forward-thinking organizations use this every day. Join them.</p><Link className="at-btn at-btn--dark at-btn--lg" href="/login">Get started for free</Link></div></section>
+    {page === "pricing" && <PricingBody cfg={pricingCfg} />}
     <footer className="at-foot"><div className="at-foot__top"><Logo s={24} /><nav>{["Platform", "Solutions", "Resources", "Enterprise", "Pricing", "Book Demo"].map(x => <Link key={x} href="/pricing">{x}</Link>)}</nav><span className="at-soc">{["f", "in", "X", "◎", "▶"].map(x => <a key={x} href={REPO}>{x}</a>)}</span></div>
       <div className="at-foot__cols">{cols.map(([h, ls]) => <div key={h}><h5>{h}</h5>{ls.map(l => <Link key={l} href="/pricing">{l}</Link>)}<b>See more</b></div>)}</div>
       <div className="at-foot__bar"><nav>{["Security", "API", "Privacy", "Terms", "Do Not Sell/Share My Info", "Cookie Preferences", "Accessibility"].map(x => <Link key={x} href="/pricing">{x}</Link>)}</nav><span className="at-apps"><a href={REPO}>App Store</a><a href={REPO}>Google Play</a></span></div></footer>

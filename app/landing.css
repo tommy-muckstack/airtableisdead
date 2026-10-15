@@ -50,3 +50,5 @@
 
 /* pricing page: hide home sections, keep header/footer */
 .at.is-pr>section{display:none!important}
+/* wide screens: the home is laid out on a 1440 canvas, centre it instead of pinning to the left edge */
+@media (min-width:1441px){.at>section.at-hero,.at>section.at-trust,.at>section.at-feat,.at>section.at-path,.at>section.at-res,.at>section.at-story,.at>section.at-cta,.at-nav{max-width:1440px;margin-left:auto;margin-right:auto}}

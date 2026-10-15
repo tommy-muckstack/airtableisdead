@@ -6,7 +6,7 @@ import "@/app/landing.css";
 // Home page laid out like airtable.com: banner, centered hero, feature stack, card grid, stories, footer.
 // Marks, copy and artwork are our own.
 const REPO = "https://github.com/tommy-muckstack/airtableisdead";
-const Logo = ({ s = 28 }: { s?: number }) => <svg height={s} viewBox="0 0 110 28" aria-hidden><path d="M2 10l11-5 11 5-11 5z" fill="#181d26" /><path d="M2 13l10 4.5v8L2 21z" fill="#181d26" opacity=".7" /><path d="M24 13l-10 4.5v8L24 21z" fill="#181d26" opacity=".85" /><text x="33" y="21" fontFamily="IsDead Inter Tight,sans-serif" fontSize="19" fontWeight="600" letterSpacing="-.6" fill="#181d26">airtable</text></svg>;
+const Logo = ({ s = 28 }: { s?: number }) => <svg height={s} viewBox="0 0 110 28" aria-hidden><path d="M2 10l11-5 11 5-11 5z" fill="#181d26" /><path d="M2 13l10 4.5v8L2 21z" fill="#181d26" opacity=".7" /><path d="M24 13l-10 4.5v8L24 21z" fill="#181d26" opacity=".85" /><text x="33" y="21" fontFamily="IsDead Inter Tight,sans-serif" fontSize="19" fontWeight="600" letterSpacing="-.6" fill="#181d26">Airtable</text></svg>;
 const Dn = () => <svg width="7" height="5" viewBox="0 0 7 5" aria-hidden style={{ marginLeft: 5 }}><path d="M1 1l2.5 2.5L6 1" fill="none" stroke="currentColor" strokeWidth="1.3" /></svg>;
 const Tick = () => <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#1f5d3a" strokeWidth="1.6" /></svg>;
 const brands = ["ANTHROPIC", "harvey", "MERCOR", "amazon", "Walmart", "NETFLIX", "Johnson&Johnson"];
@@ -15,12 +15,12 @@ const lists: [string, string[]][] = [["Scalable infrastructure", ["HyperDB with 
 
 export function Landing({ page }: { page?: "pricing" } = {}) {
   return <div className={"at" + (page === "pricing" ? " is-pr" : "")}>
-    <div className="at-banner">Bring your data into your assistant. <Link href="/pricing">Try it now →</Link><button aria-label="Close">×</button></div>
+    <div className="at-banner">Bring your Airtable data into Claude. <Link href="/pricing">Try it now →</Link><button aria-label="Close">×</button></div>
     <header className="at-nav"><Link href="/" className="at-logo"><Logo /></Link>
       <nav><button>Platform<Dn /></button><button>Solutions<Dn /></button><button>Resources<Dn /></button><Link href="/pricing">Enterprise</Link><Link href="/pricing">Pricing</Link></nav>
       <div className="at-nav__r"><Link href="/pricing" className="at-btn at-btn--line">Book Demo</Link><Link href="/login" className="at-btn at-btn--dark">Sign up for free</Link><Link href="/login" className="at-login">Log in</Link></div></header>
     <section className="at-hero"><h1>All your teams, all their workflows—connected in one workspace</h1>
-      <p>Build apps and workflows that unify data, maximize collaboration, and set your teams up for long-term success. No code required.</p>
+      <p>Build AI-powered workflows that unify data, maximize collaboration, and set your teams up for long-term success. No code required.</p>
       <div className="at-hero__btns"><Link href="/login" className="at-btn at-btn--dark at-btn--lg">Get started for free</Link><Link href="/pricing" className="at-btn at-btn--line at-btn--lg">Book demo</Link></div>
       <button className="at-pause" aria-label="Pause"><i /><i /></button>
       <div className="at-demo" aria-hidden><div className="at-grid">{Array.from({ length: 24 }, (_, i) => <i key={i} />)}</div></div></section>

@@ -1,81 +1,62 @@
 "use client";
-// Generic parity auth screen (login + signup) — original art, original wording where brand specific.
-// Copy into an app's components/ dir with auth-screen.css imported from globals.css.
+// Airtable-style login (form + promo card) and signup (single centred column).
 import { useState } from "react";
 import Link from "next/link";
 import type { FirebaseClientConfig } from "@/lib/isdead-auth/config";
-import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword, authErrorMessage } from "@/lib/isdead-auth/client";
-import { BP } from "@/lib/basepath";
-import { Logo } from "@/components/Logo";
+import { useAuth } from "@/components/useAuth";
 
-export type Provider = { id: string; label: string; signupLabel?: string; primary?: boolean };
-export type AuthCfg = {
-  layout: "center" | "splitL" | "splitR";
-  bg?: string;                  // page background (css)
-  card?: boolean;               // wrap form in a card
-  title: string; signupTitle?: string; sub?: string; signupSub?: string;
-  providers: Provider[];
-  emailLabel?: string; emailFirst?: boolean; passwordInline?: boolean;
-  cta?: string; ctaNext?: string; signupCta?: string;
-  accent: string; ctaBg?: string; ctaFg?: string; radius?: number; ink?: string; muted?: string; font?: string;
-  top?: { logo?: boolean; right?: string; rightHref?: string; cta?: string; dark?: boolean };
-  art?: { kind: "dark" | "color" | "none"; title?: string; sub?: string; bg?: string; fg?: string; blocks?: string[] };
-  providersAfter?: boolean; emailButton?: string; forgotInline?: boolean; remember?: boolean; altButton?: string;
-  logoSize?: number; logoCenter?: boolean; footerNote?: string;
-  switchText?: [string, string]; signupSwitchText?: [string, string];
-};
-const GG = <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h6.2a5.3 5.3 0 01-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.4z" /><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A11.5 11.5 0 0012 23.5z" /><path fill="#FBBC05" d="M5.6 14.2a6.9 6.9 0 010-4.4v-3H1.8a11.5 11.5 0 000 10.4z" /><path fill="#EA4335" d="M12 5.4c1.7 0 3.2.6 4.4 1.7l3.3-3.3A11.5 11.5 0 001.8 6.8l3.8 3A6.9 6.9 0 0112 5.4z" /></svg>;
-const badge = (t: string, c: string) => <span className="au-badge" style={{ background: c }}>{t}</span>;
-const ICON: Record<string, React.ReactNode> = {
-  google: GG, microsoft: badge("▦", "#5e6ad2"), apple: badge("●", "#222"), slack: badge("#", "#7c4dff"), outlook: badge("O", "#2b79d6"),
-  facebook: badge("f", "#1877f2"), sso: badge("◎", "#6b7280"), saml: badge("◎", "#6b7280"), github: badge("◆", "#24292f"), passkey: badge("⚿", "#6b7280"),
-};
-export function AuthScreen({ config, demo, to, signup = false, cfg }: { config: FirebaseClientConfig | null; demo: boolean; to: string; signup?: boolean; cfg: AuthCfg }) {
-  const [mode, setMode] = useState<"signin" | "signup" | "reset">(signup ? "signup" : "signin");
-  const [step, setStep] = useState<1 | 2>(1); const [showEmail, setShowEmail] = useState(!cfg.emailButton);
-  const [email, setEmail] = useState(""), [password, setPassword] = useState(""), [busy, setBusy] = useState(false), [err, setErr] = useState(""), [note, setNote] = useState("");
-  const session = `${BP}/api/session`;
-  const off = "Not available yet in the open-source version";
-  const run = async (f: () => Promise<void>) => { setBusy(true); setErr(""); setNote(""); try { await f(); } catch (e) { setErr(authErrorMessage(e)); } finally { setBusy(false); } };
-  const needPw = mode !== "reset" && (cfg.passwordInline || step === 2 || !cfg.emailFirst);
-  const submit = (e: React.FormEvent) => { e.preventDefault();
-    if (!config) { setErr("Sign-in isn't configured on this deployment yet."); return; }
-    if (mode === "reset") return run(async () => { await resetPassword(config, email); setNote("If that email has an account, a reset link is on its way."); setMode("signin"); setStep(1); });
-    if (!needPw) { setStep(2); return; }
-    run(async () => { if (mode === "signup") await signUpWithEmail(config, session, email, password); else await signInWithEmail(config, session, email, password); window.location.assign(to); }); };
-  const swap = (m: typeof mode) => (e: React.MouseEvent) => { e.preventDefault(); setMode(m); setStep(1); setErr(""); setNote(""); };
-  const T = mode === "signup" ? (cfg.signupTitle ?? cfg.title) : mode === "reset" ? "Reset your password" : cfg.title;
-  const S = mode === "signup" ? (cfg.signupSub ?? cfg.sub) : mode === "reset" ? "Enter your email and we'll send you a reset link." : cfg.sub;
-  const ctaLabel = mode === "reset" ? "Email me a reset link" : mode === "signup" ? (needPw ? (cfg.signupCta ?? "Create account") : (cfg.ctaNext ?? cfg.cta ?? "Continue")) : needPw ? (cfg.cta ?? "Log in") : (cfg.ctaNext ?? "Continue");
-  const sw = mode === "signup" ? (cfg.signupSwitchText ?? ["Already have an account?", "Log in"]) : (cfg.switchText ?? ["Don't have an account?", "Sign up"]);
-  const style = { "--au-accent": cfg.accent, "--au-cta": cfg.ctaBg ?? cfg.accent, "--au-ctafg": cfg.ctaFg ?? "#fff", "--au-r": `${cfg.radius ?? 6}px`, "--au-ink": cfg.ink ?? "#1a1a1a", "--au-muted": cfg.muted ?? "#6b6b6b", "--au-bg": cfg.bg ?? "#fff", fontFamily: cfg.font } as React.CSSProperties;
-  const art = cfg.art && cfg.art.kind !== "none" ? cfg.art : null;
-  const provs = mode !== "reset" && (showEmail || cfg.providersAfter || cfg.emailButton) ? cfg.providers.map(p => { const real = p.id === "google"; return <button key={p.id} type="button" className={`au-prov${p.primary ? " primary" : ""}`} disabled={real ? busy || !config : true} title={real ? undefined : off} onClick={real ? () => run(async () => { await signInWithGoogle(config!, session); window.location.assign(to); }) : undefined}>{ICON[p.id]}<span>{mode === "signup" ? (p.signupLabel ?? p.label) : p.label}</span></button>; }) : null;
-  const form = <div className={`au-form${cfg.card ? " au-card" : ""}`}>
-    {cfg.logoCenter && <div className="au-logoc"><Logo size={cfg.logoSize ?? 28} /></div>}
-    <h1>{T}</h1>{S && <p className="au-sub">{S}</p>}
-    {!config && <p role="status" className="au-note">Sign-in not configured. Email and Google sign-in turn on once Firebase is set up.</p>}
-    {!cfg.providersAfter && provs}
-    {!cfg.providersAfter && mode !== "reset" && cfg.providers.length > 0 && showEmail && <div className="au-or"><span>OR</span></div>}
-    {cfg.emailButton && !showEmail && mode !== "reset" ? <button type="button" className="au-prov" onClick={() => setShowEmail(true)}>{cfg.emailButton}</button> : <form onSubmit={submit}>
-      <label htmlFor="au-email">{cfg.emailLabel ?? "Email"}</label>
-      <input id="au-email" type="email" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} readOnly={needPw && !cfg.passwordInline} />
-      {needPw && <><label htmlFor="au-pass">Password{cfg.forgotInline && mode === "signin" && <a href="#" className="au-fgt" onClick={swap("reset")}>Forgot your password?</a>}</label><input id="au-pass" type="password" required minLength={6} autoFocus={!cfg.passwordInline} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={e => setPassword(e.target.value)} /></>}
-      {cfg.remember && needPw && <label className="au-rem"><input type="checkbox" /> Remember me</label>}
-      {cfg.altButton ? <div className="au-two"><button type="button" className="au-alt" onClick={swap(mode === "signup" ? "signin" : "signup")}>{mode === "signup" ? "I have an account" : cfg.altButton}</button><button className="au-cta" disabled={busy}>{ctaLabel}</button></div> : <button className="au-cta" disabled={busy}>{ctaLabel}</button>}
-    </form>}
-    {cfg.providersAfter && mode !== "reset" && cfg.providers.length > 0 && <div className="au-or"><span>OR</span></div>}
-    {cfg.providersAfter && provs}
-    {mode === "signin" && !cfg.forgotInline && <div className="au-links"><a href="#" onClick={swap("reset")}>Forgot password?</a></div>}
-    {err && <p role="alert" className="au-err">{err}</p>}{note && <p role="status" className="au-note">{note}</p>}
-    {demo && <button type="button" className="au-demo" onClick={async () => { const r = await fetch(`${BP}/api/session/demo`, { method: "POST" }); if (r.ok) window.location.assign(to); }}>Use the demo account</button>}
-    <p className="au-switch">{mode === "reset" ? <a href="#" onClick={swap("signin")}>Back to log in</a> : <>{sw[0]} <a href="#" onClick={swap(mode === "signup" ? "signin" : "signup")}>{sw[1]}</a></>}</p>
-    {cfg.footerNote && <p className="au-legal">{cfg.footerNote}</p>}
-  </div>;
-  const artEl = art && <aside className={`au-art au-art--${art.kind}`} style={{ background: art.bg, color: art.fg }}><div>{art.title && <h2>{art.title}</h2>}{art.sub && <p>{art.sub}</p>}
-    {art.blocks && <div className="au-blocks">{art.blocks.map((c, i) => <i key={i} style={{ background: c, height: 60 + (i * 37) % 90 }} />)}</div>}</div></aside>;
-  return <main className={`au au--${cfg.layout}`} style={style}>
-    {cfg.top && <header className={`au-top${cfg.top.dark ? " dark" : ""}`}>{cfg.top.logo !== false && !cfg.logoCenter ? <Link href="/" className="au-toplogo"><Logo size={22} /></Link> : <span />}<div>{cfg.top.right && <a href={cfg.top.rightHref ?? "#"}>{cfg.top.right}</a>}{cfg.top.cta && <Link className="au-topcta" href="/login?mode=signup">{cfg.top.cta}</Link>}</div></header>}
-    <div className="au-body">{cfg.layout === "splitL" && artEl}<section className="au-main">{form}</section>{cfg.layout === "splitR" && artEl}</div>
+const GG = <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h6.2a5.3 5.3 0 01-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.4z" /><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A11.5 11.5 0 0012 23.5z" /><path fill="#FBBC05" d="M5.6 14.2a6.9 6.9 0 010-4.4v-3H1.8a11.5 11.5 0 000 10.4z" /><path fill="#EA4335" d="M12 5.4c1.7 0 3.2.6 4.4 1.7l3.3-3.3A11.5 11.5 0 001.8 6.8l3.8 3A6.9 6.9 0 0112 5.4z" /></svg>;
+const AP = <svg width="12" height="14" viewBox="0 0 24 24" aria-hidden><path fill="#111" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.5.9s-1.8-.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7 2-1.1 2.8-2.2c.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.5-1-2.5-3.9zM14.100 5.700c.6-.8 1.100-1.900.9-3-.9 0-2.100.6-2.700 1.400-.6.700-1.100 1.800-1 2.900 1 .1 2.100-.5 2.800-1.300z" /></svg>;
+const GP = <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9.500" fill="none" stroke="#111" strokeWidth="1.800" /><path d="M12 6l4.500 2.600v5.200L12 16.400l-4.500-2.600V8.600z M12 6v10.400 M7.500 8.600l9 5.200 M16.500 8.600l-9 5.200" fill="none" stroke="#111" strokeWidth="1.300" /></svg>;
+const SS = <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden />;
+function Cube({ s = 38 }: { s?: number }) {
+  return <svg width={s} height={s} viewBox="0 0 40 40" aria-hidden><path d="M19 4 3 10.600a1.100 1.100 0 0 0 0 2l16.100 6.400a3.600 3.600 0 0 0 2.700 0l16.100-6.400a1.100 1.100 0 0 0 0-2L21.800 4a3.600 3.600 0 0 0-2.700 0z" fill="#111" /><path d="M21.700 22.500v14.400a1 1 0 0 0 1.400.9l16-6.300a1 1 0 0 0 .6-.9V16.200a1 1 0 0 0-1.400-.9l-16 6.300a1 1 0 0 0-.6.900z" fill="#111" /><path d="M17.800 23.600l-5.400 2.600-.6.300L2 31.200a1 1 0 0 1-1.500-.9V16.300a1 1 0 0 1 1.400-.9l15.900 6.200a1 1 0 0 1 0 2z" fill="#111" transform="translate(1.700 0.600)" /></svg>;
+}
+function Promo() {
+  const tile = (i: number, bg: string, body: React.ReactNode) => <div key={i} className="at-au-tile" style={{ background: bg }}>{body}</div>;
+  const dots = (c: string) => <svg viewBox="0 0 100 100" width="100%" height="100%">{Array.from({ length: 12 }).map((_, i) => <circle key={i} cx={50 + 26 * Math.cos(i * Math.PI / 6)} cy={50 + 26 * Math.sin(i * Math.PI / 6)} r="4.500" fill={c} />)}<rect x="44" y="46" width="12" height="8" rx="2" fill="#d6249f" /></svg>;
+  return <aside className="at-au-promo" aria-hidden>
+    <h2>Meet Omni, your AI collaborator for building custom apps.</h2>
+    <span className="at-au-pill">Start building</span>
+    <div className="at-au-tiles">
+      {tile(0, "#2b2b2f", <svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M22 70 q-6 -40 28 -48 q34 8 28 48 l-12 8 l-32 0z" fill="#8a8e96" /><path d="M32 52 h36 v10 h-36z" fill="#1a1a1e" /></svg>)}
+      {tile(1, "#f78fe8", dots("#fff"))}
+      {tile(2, "#7a2430", <div className="at-au-photo"><b>Campaign concept</b><i /></div>)}
+      {tile(3, "#f8b99a", <div className="at-au-ui"><i /><i /><i /></div>)}
+      {tile(4, "#a9ebb0", <div className="at-au-ui g"><i /><i /><i /></div>)}
+      {tile(5, "#2b2b2f", <svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="28" fill="#44444a" />{Array.from({ length: 8 }).map((_, i) => <circle key={i} cx={50 + 34 * Math.cos(i * Math.PI / 4)} cy={50 + 34 * Math.sin(i * Math.PI / 4)} r="5" fill="#caa46a" />)}</svg>)}
+    </div>
+  </aside>;
+}
+export function AuthScreen({ config, demo, to, signup = false }: { config: FirebaseClientConfig | null; demo: boolean; to: string; signup?: boolean }) {
+  const a = useAuth({ config, demo, to, signup });
+  const [foc, setFoc] = useState(false);
+  const su = a.mode === "signup", reset = a.mode === "reset";
+  const ready = a.email.trim().length > 3;
+  const prov = (icon: React.ReactNode, a1: string, b: string) => <button type="button" className="at-au-prov" aria-disabled="true" title="Not available yet in the open-source version" onClick={a.off}>{icon}<span>{a1}<b>{b}</b></span></button>;
+  return <main className={`at-au${su ? " su" : ""}`}>
+    <div className="at-au-col">
+      <Link href="/" aria-label="Home" className="at-au-logo"><Cube s={su ? 34 : 36} /></Link>
+      <h1>{reset ? "Reset your password" : "Welcome to Airtable"}</h1>
+      <form onSubmit={a.submit(true)}>
+        <label htmlFor="at-e">{su ? "Work email" : <>Email<em>*</em></>}</label>
+        <input id="at-e" type="email" required autoComplete="email" placeholder={su ? "name@company.com" : "Email address"} className={foc || su ? "f" : ""} onFocus={() => setFoc(true)} onBlur={() => setFoc(false)} value={a.email} onChange={e => a.setEmail(e.target.value)} readOnly={a.step === 2} />
+        {a.step === 2 && !reset && <><label htmlFor="at-p" className="p">Password</label><input id="at-p" type="password" required minLength={6} autoFocus value={a.password} onChange={e => a.setPassword(e.target.value)} autoComplete={su ? "new-password" : "current-password"} className="f" /></>}
+        <button className={`at-au-cta${ready ? " on" : ""}`} disabled={a.busy}>{reset ? "Send reset link" : a.step === 2 ? (su ? "Create account" : "Sign in") : "Continue"}</button>
+        {a.err && <p role="alert" className="at-au-err">{a.err}</p>}{a.note && <p role="status" className="at-au-ok">{a.note}</p>}
+      </form>
+      {!reset && <>
+        <div className="at-au-or">or</div>
+        {prov(SS, "Continue with ", "Single Sign On")}
+        <button type="button" className="at-au-prov" onClick={a.google} disabled={a.busy}>{GG}<span>Continue with <b>Google</b></span></button>
+        {prov(AP, "Continue with ", su ? "Apple" : "Apple ID")}
+        {prov(GP, "Continue with ", "ChatGPT")}</>}
+      <p className="at-au-legal">{su ? <>By using Airtable, you agree to the <a href="#" onClick={a.off}>Terms of Service</a> and <a href="#" onClick={a.off}>Privacy Policy</a>.</> : <>By signing up, you agree to the <a href="#" onClick={a.off}>Terms of Service</a> and <a href="#" onClick={a.off}>Privacy Policy</a>.</>}</p>
+      <p className="at-au-legal">Manage your cookie preferences <a href="#" onClick={a.off} className="b">here</a></p>
+      <p className="at-au-sw">{reset ? <a href="#" onClick={a.go("signin")}>Back to sign in</a> : su ? <>Already have an account? <a href="#" onClick={a.go("signin")}>Sign in</a></> : <>New to Airtable? <a href="#" onClick={a.go("signup")}>Create an account</a> · <a href="#" onClick={a.go("reset")}>Forgot password?</a></>}</p>
+      {a.demo && <button type="button" className="at-au-demo" onClick={a.useDemo}>Use the demo account</button>}
+    </div>
+    {!su && <Promo />}
+    {!a.configured && <p className="at-au-cfg" role="status">Sign-in isn’t configured on this deployment yet.</p>}
   </main>;
 }

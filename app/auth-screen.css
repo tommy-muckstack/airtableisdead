@@ -1,36 +1,34 @@
-/* generic auth screen — see AuthScreen.tsx */
-.au{min-height:100vh;background:var(--au-bg);color:var(--au-ink);display:flex;flex-direction:column}
-.au-top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px}.au-top.dark{color:#fff}.au-top>div{display:flex;gap:14px;align-items:center}.au-top a{color:inherit}
-.au-toplogo{text-decoration:none;color:inherit}
-.au-topcta{background:var(--au-cta);color:var(--au-ctafg)!important;padding:7px 14px;border-radius:var(--au-r);text-decoration:none;font-weight:600}
-.au-body{flex:1;display:grid;grid-template-columns:1fr}
-.au--splitL .au-body,.au--splitR .au-body{grid-template-columns:1fr 1fr}
-.au-main{display:flex;justify-content:center;align-items:center;padding:40px 24px}
-.au--center .au-main{align-items:flex-start;padding-top:56px}
-.au-form{width:min(100%,360px);display:flex;flex-direction:column}
-.au-card{background:#fff;border-radius:calc(var(--au-r) * 2);padding:32px 32px 26px;box-shadow:0 8px 34px rgba(20,20,40,.1);width:min(100%,420px)}
-.au-logoc{display:flex;justify-content:center;margin-bottom:22px}
-.au-form h1{font-size:26px;line-height:1.2;letter-spacing:-.02em;margin:0 0 8px;font-weight:700}
-.au-sub{margin:0 0 20px;font-size:13.5px;color:var(--au-muted);line-height:1.45}
-.au--center .au-form h1,.au--center .au-sub{text-align:center}
-.au-prov{height:42px;margin-bottom:10px;border:1px solid #d7d7dc;border-radius:var(--au-r);background:#fff;color:var(--au-ink);font-weight:500;font-size:14px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font-family:inherit}
-.au-prov:hover:not(:disabled){background:#f6f6f8}.au-prov:disabled{opacity:.6;cursor:not-allowed}
-.au-badge{width:18px;height:18px;border-radius:5px;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;line-height:1}
-.au-or{display:flex;align-items:center;gap:12px;margin:8px 0 14px;font-size:11px;color:var(--au-muted)}.au-or:before,.au-or:after{content:"";flex:1;border-top:1px solid #e3e3e8}
-.au-form form{display:grid}.au-form label{font-size:12.5px;font-weight:600;margin-bottom:6px}
-.au-form input{height:42px;border:1px solid #cfcfd6;border-radius:var(--au-r);padding:0 12px;font-size:14px;font-family:inherit;margin-bottom:14px;background:#fff;color:var(--au-ink)}
-.au-form input:focus{outline:2px solid var(--au-accent);outline-offset:-1px;border-color:transparent}
-.au-cta{height:42px;border:0;border-radius:var(--au-r);background:var(--au-cta);color:var(--au-ctafg);font-weight:600;font-size:14px;font-family:inherit;cursor:pointer}.au-cta:hover{filter:brightness(.92)}.au-cta:disabled{opacity:.6}
-.au-links{margin-top:14px;text-align:right;font-size:12.5px}.au-links a,.au-switch a{color:var(--au-accent)}
-.au-switch{margin:20px 0 0;font-size:13px;color:var(--au-muted);text-align:center}
-.au-legal{margin:14px 0 0;font-size:11px;line-height:1.5;color:var(--au-muted);text-align:center}
-.au-note{font-size:12.5px;color:var(--au-muted)}.au-err{color:#c0362c;font-size:13px}
-.au-demo{margin-top:12px;height:40px;border:1px dashed #9a9aa5;background:transparent;border-radius:var(--au-r);font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;color:var(--au-ink)}
-.au-art{display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;overflow:hidden;position:relative}
-.au-art h2{font-size:30px;line-height:1.15;letter-spacing:-.02em;margin:0 0 12px}.au-art p{margin:0;opacity:.75;font-size:14px}
-.au-art--dark{background:#1c1f26;color:#fff}.au-art--color{background:#2a5cff;color:#fff}
-.au-blocks{display:flex;gap:12px;margin-top:32px;align-items:flex-end;justify-content:center}.au-blocks i{width:90px;border-radius:14px;display:block}
-@media (max-width:860px){.au--splitL .au-body,.au--splitR .au-body{grid-template-columns:1fr}.au-art{display:none}}
-.au-prov.primary{background:var(--au-cta);color:var(--au-ctafg);border-color:transparent}.au-prov.primary:hover:not(:disabled){background:var(--au-cta);filter:brightness(.92)}
-.au-fgt{float:right;font-weight:400;color:var(--au-accent);font-size:12px}.au-rem{display:flex;align-items:center;gap:8px;font-weight:400!important;margin:-4px 0 14px}.au-rem input{height:auto;margin:0}
-.au-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.au-alt{height:42px;border:1px solid #cfcfd6;border-radius:var(--au-r);background:#fff;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer;color:var(--au-ink)}
+@font-face{font-family:"IsDead Inter Tight";src:url("./fonts/InterTight-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+.at-au{position:relative;min-height:100vh;background:#fff;color:#1d1f25;font-family:"IsDead Inter Tight",system-ui,sans-serif;letter-spacing:0}
+.at-au-col{position:absolute;left:calc(50% - 636px);top:211px;width:502px;display:flex;flex-direction:column}
+.at-au.su .at-au-col{left:calc(50% - 257px);top:190px;width:514px}
+.at-au-logo{display:block;line-height:0;margin-bottom:45px}
+.at-au h1{margin:0 0 49px;font-size:33px;line-height:40px;font-weight:500;letter-spacing:-.01em;color:#1d1f25}
+.at-au-col label{font-size:14px;line-height:20px;color:#1d1f25;margin-bottom:6px;font-weight:450}.at-au-col label em{color:#c2185b;font-style:normal;margin-left:1px}.at-au-col label.p{margin-top:14px}
+.at-au form{display:flex;flex-direction:column}
+.at-au input{height:41px;border:1px solid #e6e8ec;border-radius:6px;padding:0 10px;font:inherit;font-size:14px;color:#1d1f25;background:#fff;outline:none;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.at-au input::placeholder{color:#9aa0a8}
+.at-au.su input.f{border:1.5px solid #166ee1;box-shadow:0 0 0 3px rgba(22,110,225,.12)}
+.at-au-cta{margin-top:25px;height:40px;border:0;border-radius:6px;background:#8fb1e6;color:#fff;font:inherit;font-size:14px;font-weight:500;cursor:pointer}.at-au-cta.on{background:#166ee1}
+.at-au-or{text-align:center;font-size:13px;color:#555b66;margin:29px 0 25px;line-height:16px}
+.at-au-prov{height:40px;margin-bottom:16px;font-size:14.5px;border:1px solid #e1e3e8;border-radius:6px;background:#fff;color:#1d1f25;font:inherit;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.at-au-prov b{font-weight:700}.at-au-prov[aria-disabled=true]{cursor:default}
+
+.at-au-legal{margin:62px 0 0;font-size:12.5px;line-height:16px;color:#33373f}.at-au-legal+.at-au-legal{margin-top:22px}
+.at-au-legal a{color:#1d1f25;font-weight:700;text-decoration:none;border-bottom:1px dotted #555}.at-au-legal a.b{color:#166ee1;border:0;text-decoration:underline}
+.at-au-sw{margin:22px 0 0;font-size:13px;color:#555b66}.at-au-sw a{color:#166ee1}
+.at-au-demo{margin:14px 0 0;align-self:flex-start;background:none;border:0;padding:0;color:#166ee1;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.at-au-err{color:#c0362c;font-size:13px;margin:10px 0 0}.at-au-ok{color:#2a7a3a;font-size:13px;margin:10px 0 0}
+.at-au-cfg{position:absolute;left:16px;bottom:8px;margin:0;font-size:11px;color:#8a8a8a}
+.at-au-promo{position:absolute;left:calc(50% + 186px);top:291px;width:393px;height:579px;border-radius:22px;background:#3d063c;color:#fff;overflow:hidden}
+.at-au-promo h2{position:absolute;left:39px;top:51px;width:330px;margin:0;font-size:28px;line-height:40px;font-weight:450;letter-spacing:-.01em}
+.at-au-pill{position:absolute;left:39px;top:188px;height:28px;padding:0 11px;border-radius:7px;background:#fff;color:#1d1f25;font-size:12px;font-weight:600;display:flex;align-items:center}
+.at-au-tiles{position:absolute;left:0;right:0;top:262px;display:grid;grid-template-columns:118px 127px 118px;gap:15px 14px;justify-content:space-between}
+.at-au-tile{height:129px;overflow:hidden;position:relative;padding:12px}
+.at-au-tile:nth-child(1){border-radius:0 12px 12px 0}.at-au-tile:nth-child(3){border-radius:12px 0 0 12px}.at-au-tile:nth-child(4){border-radius:0 12px 12px 0}.at-au-tile:nth-child(6){border-radius:12px 0 0 12px}.at-au-tile:nth-child(2),.at-au-tile:nth-child(5){border-radius:12px}
+.at-au-photo b{display:block;font-size:10px;color:#fff;font-weight:500}.at-au-photo i{display:block;margin-top:8px;height:70px;border-radius:6px;background:#d9a77c}
+.at-au-ui i{display:block;height:20px;border-radius:5px;background:#fff;opacity:.8;margin-bottom:8px}.at-au-ui.g i{background:#e5fbe8}
+@media (max-width:900px){.at-au-promo{display:none}.at-au-col,.at-au.su .at-au-col{left:24px;right:24px;width:auto;top:60px}}
+
+.at-au.su .at-au-legal{margin-top:40px}.at-au.su .at-au-legal+.at-au-legal{margin-top:22px}
+.at-au:not(.su) .at-au-legal a{color:#1161d9;border:0;text-decoration:underline}

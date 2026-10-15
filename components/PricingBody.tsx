@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "@/app/pricing-body.css";
+import "@/app/pricing-at-m.css";
 import { PbCollapse } from "@/components/PbCollapse";
 import mxa from "@/lib/atMatrix.json";
 
@@ -16,20 +17,33 @@ export type PBCfg = {
 };
 const Mark = ({ on }: { on: boolean }) => on ? <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="currentColor" strokeWidth="2" /></svg> : <i aria-hidden>–</i>;
 
+type AxGroup = { g: string; r: string[][] };
+// Phone layout: every plan card expands (ALL FEATURES) to what that plan includes, straight from the compare matrix.
+function allFor(i: number) {
+  return (mxa as AxGroup[]).map(g => {
+    const rows = g.r.flatMap(r => { const v = r[i + 1]; if (!v || v === "–" || v === "-") return []; const l = r[0].replace(/ NEW$/, ""); return [v === "✓" ? l : `${l}: ${v}`]; });
+    return rows.length ? <div key={g.g} className="pb-all__g"><strong>{g.g}</strong><ul>{rows.map(x => <li key={x}>{x}</li>)}</ul></div> : null;
+  });
+}
+const Lm = (f: string) => { const i = f.indexOf("Learn more"); return i < 0 ? f : <>{f.slice(0, i)}<a className="pb-lm" href="/login">Learn more</a></>; };
+const Bld = () => <svg className="pb-bld" width="60" height="50" viewBox="0 0 60 50" aria-hidden><g fill="none" stroke="currentColor" strokeWidth="3.2"><path d="M6 46V3h26v43M32 17h22v29" /><path d="M13 14h11M13 24h6M13 34h6M40 26h8M40 36h8" strokeWidth="3" /><path d="M1 47h58" /></g></svg>;
+
 export function PricingBody({ cfg }: { cfg: PBCfg }) {
   const { plans } = cfg; const nc = cfg.cols.length;
-  return <div className="pb" style={cfg.vars as React.CSSProperties}>
+  return <div className={"pb" + (cfg.mxa ? " pb--at" : "")} style={cfg.vars as React.CSSProperties}>
     <section className="pb-hero"><h1>{cfg.title}</h1>{cfg.sub && <p>{cfg.sub}</p>}{cfg.note && <span className="pb-note">{cfg.note}</span>}
       {cfg.toggle && <div className="pb-toggle"><b>{cfg.toggle[0]}</b><span>{cfg.toggle[1]}</span></div>}</section>
     <section className="pb-plans" style={{ ["--n" as string]: plans.length } as React.CSSProperties}>
       {plans.map(p => <article key={p.name} className={"pb-plan" + (p.hot ? " pb-plan--hot" : "")}>
         {p.tag && <em>{p.tag}</em>}<h2>{p.name}</h2><p className="pb-plan__d">{p.desc}</p>
-        <div className="pb-price"><b>{p.price}</b>{p.per && <small>{p.per}</small>}</div>
+        <div className="pb-price"><b>{p.price}</b>{p.per && <small>{cfg.mxa ? p.per.replace(" billed", "\nbilled") : p.per}</small>}{cfg.mxa && p.name.startsWith("Enterprise") && <Bld />}</div>
         <Link className="pb-btn" href="/login">{p.cta}</Link>
         {p.lead && <h4>{p.lead}</h4>}
-        <ul>{p.feats.map(f => <li key={f}><Mark on />{f}</li>)}</ul>{p.addon && <><h4>Available add-ons:</h4><ul>{p.addon.map(f => <li key={f}><Mark on />{f}</li>)}</ul></>}</article>)}
+        <ul>{p.feats.map(f => <li key={f}><Mark on /><span>{cfg.mxa ? Lm(f) : f}</span></li>)}</ul>{p.addon && <><h4>Available add-ons:</h4><ul>{p.addon.map(f => <li key={f}><Mark on />{f}</li>)}</ul></>}
+        {cfg.mxa && <details className="pb-all"><summary>All features</summary>{allFor(plans.indexOf(p))}</details>}</article>)}
     </section>
     {cfg.extra && <section className="pb-extra"><div><h2>{cfg.extra.title}</h2><p>{cfg.extra.text}</p>{cfg.extra.bullets && <ul>{cfg.extra.bullets.map(b => <li key={b}>{b}</li>)}</ul>}<Link className="pb-btn pb-btn--p" href="/login">{cfg.extra.cta}</Link></div><div className="pb-extra__art" aria-hidden><i /><i /><i /></div></section>}
+    {cfg.mxa && <section className="pb-trust"><p>Trusted by <b>500,000+</b> forward-thinking companies worldwide</p><div aria-hidden>{["aws", "Walmart", "HBO", "TIME", "BlackRock"].map(n => <span key={n}>{n}</span>)}</div></section>}
     {cfg.mxa && <section className="pb-ax"><div className="pb-ax__hd"><h2>{cfg.tableTitle}</h2>{cfg.cols.map((c, i) => <div key={c}><b>{c}</b><Link href="/login" className={i === 1 ? "on" : ""}>{plans[i]?.cta}</Link></div>)}</div>
       {(mxa as { g: string; r: string[][] }[]).map(g => <div key={g.g} className="pb-ax__g"><h3>{g.g}</h3>{g.r.map((r, i) => <div key={i} className="pb-ax__r"><span>{r[0].endsWith(" NEW") ? <>{r[0].slice(0, -4)}<em>NEW</em></> : r[0]}</span>{r.slice(1).map((v, j) => <span key={j}>{v === "✓" ? <Mark on /> : v}</span>)}</div>)}</div>)}
       <div className="pb-ax__fn"><p>* Pricing for Portals starts at $127.50/month for 15 guests on our annual plan for Business.</p><p>** Payment by invoice is available to Business customers who purchase through our sales team.</p><p>*** Airtable professional service packages are available for purchase by qualified customers on Business and Enterprise Scale plans.</p><p>**** Enterprise Scale customers can configure custom revision history timeframes.</p></div>

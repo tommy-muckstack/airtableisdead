@@ -17,7 +17,7 @@ export function Workspace({ uid, email, demo }: { uid: string; name: string; ema
   const [stored, setStored, ready] = useLocal<Base | null>(uid, "base", null);
   const [prefs, setPrefs] = useLocal<{ table: string | null; views: Record<string, string> }>(uid, "prefs", { table: null, views: {} });
   const [pop, setPop] = useState<Pop>(null); const [open, setOpen] = useState<string | null>(null); const [opts, setOpts] = useState<string | null>(null); const [toast, setToast] = useState("");
-  const [navOpen, setNavOpen] = useState(false); const [renaming, setRenaming] = useState<string | null>(null); const fileRef = useRef<HTMLInputElement>(null);
+  const [navOpen, setNavOpen] = useState(false); const [renaming, setRenaming] = useState<string | null>(null); const fileRef = useRef<HTMLInputElement>(null); const [vq, setVq] = useState("");
   useEffect(() => { if (ready && !stored) setStored(demo ? seedBase() : createTable({ id: "base", name: "My base", tables: [] }, "Table 1").base); }, [ready, stored, demo, setStored]);
   const base = stored;
   const notify = useCallback((m: string) => { setToast(m); setTimeout(() => setToast(t => (t === m ? "" : t)), 2600); }, []);
@@ -36,17 +36,18 @@ export function Workspace({ uid, email, demo }: { uid: string; name: string; ema
   return <div className="atb" data-testid="airtable-app" onClick={e => { if (!(e.target as HTMLElement).closest(".atb-panel,.atb-tool,.atb-addfield,.atb-head__m")) setPop(p => (p && (p.kind === "field" || p.kind === "addfield") ? null : p)); }}>
     <header className="atb-top">
       <button className="atb-burger" aria-label="Toggle sidebar" onClick={() => setNavOpen(o => !o)}>☰</button>
-      <div className="atb-brand"><Logo size={22} /><span className="atb-base">{base.name}</span></div>
+      <div className="atb-brand"><Logo size={22} /><span className="atb-base">{base.name}</span><svg className="atb-caret" width="10" height="6" viewBox="0 0 10 6" aria-hidden><path d="M1 1l4 4 4-4" fill="none" stroke="#fff" strokeWidth="1.6" /></svg></div>
+      <div className="atb-prod" aria-hidden><span className="on">Data</span><span>Automations</span><span>Interfaces</span><span>Forms</span></div>
+      <div className="atb-top__r"><button className="iconbtn" onClick={() => fileRef.current?.click()}>Import CSV</button><span className="ids-muted atb-who">{demo ? "Demo account" : email}</span><form method="post" action={`${BP}/api/session/logout`} style={{ margin: 0 }}><button className="iconbtn">Sign out</button></form></div>
+    </header>
       <nav className="atb-tables" aria-label="Tables">{base.tables.map(t => renaming === t.id
         ? <input key={t.id} className="atb-tab atb-tab--edit" autoFocus aria-label="Table name" defaultValue={t.name} onBlur={e => { setStored(b => renameTable(b!, t.id, e.target.value)); setRenaming(null); }} onKeyDown={e => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }} />
         : <button key={t.id} className={"atb-tab" + (t.id === table.id ? " on" : "")} aria-current={t.id === table.id} onClick={() => { setPrefs(p => ({ ...p, table: t.id })); setPop(null); }} onDoubleClick={() => setRenaming(t.id)} data-testid="table-tab">{t.name}</button>)}
-        <button className="atb-tab atb-tab--add" aria-label="Add table" onClick={() => { const r = createTable(base, `Table ${base.tables.length + 1}`); setStored(r.base); setPrefs(p => ({ ...p, table: r.table.id })); }} data-testid="add-table">＋ Add table</button></nav>
-      <div className="atb-top__r"><button className="iconbtn" onClick={() => fileRef.current?.click()}>Import CSV</button><span className="ids-muted atb-who">{demo ? "Demo account" : email}</span><form method="post" action={`${BP}/api/session/logout`} style={{ margin: 0 }}><button className="iconbtn">Sign out</button></form></div>
-    </header>
+        <button className="atb-tab atb-tab--add" aria-label="Add table" onClick={() => { const r = createTable(base, `Table ${base.tables.length + 1}`); setStored(r.base); setPrefs(p => ({ ...p, table: r.table.id })); }} data-testid="add-table">＋ Add or import</button></nav>
     <div className="atb-body">
       <aside className={"atb-views" + (navOpen ? " is-open" : "")} aria-label="Views">
-        <div className="atb-views__h">Views</div>
-        {table.views.map(v => <div key={v.id} className={"atb-view" + (v.id === view.id ? " on" : "")}><button onClick={() => { pickView(v.id); setNavOpen(false); }} data-testid="view-tab" aria-current={v.id === view.id}><span aria-hidden>{v.type === "grid" ? "▦" : "▥"}</span>{v.name}</button></div>)}
+        <input className="atb-vfind" aria-label="Find a view" placeholder="Find a view" value={vq} onChange={e => setVq(e.target.value)} />
+        {table.views.filter(v => v.name.toLowerCase().includes(vq.toLowerCase())).map(v => <div key={v.id} className={"atb-view" + (v.id === view.id ? " on" : "")}><button onClick={() => { pickView(v.id); setNavOpen(false); }} data-testid="view-tab" aria-current={v.id === view.id}><span aria-hidden>{v.type === "grid" ? "▦" : "▥"}</span>{v.name}</button></div>)}
         <div className="atb-views__add"><button className="iconbtn" onClick={() => { const r = addView(table, `Grid ${table.views.length + 1}`, "grid"); onTable(() => r.table); pickView(r.view.id); }} data-testid="add-grid">＋ Grid</button><button className="iconbtn" onClick={() => { const r = addView(table, `Kanban ${table.views.length + 1}`, "kanban"); onTable(() => r.table); pickView(r.view.id); }} data-testid="add-kanban">＋ Kanban</button></div>
         <div className="atb-views__h" style={{ marginTop: 20 }}>This table</div>
         <button className="iconbtn atb-wide" onClick={() => { dl(`${slug(table.name)}.csv`, toCsv(table, view)); notify("Exported CSV"); }}>Export view as CSV</button>

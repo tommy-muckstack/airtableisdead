@@ -6,9 +6,6 @@ import type { FirebaseClientConfig } from "@/lib/isdead-auth/config";
 import { useAuth } from "@/components/useAuth";
 
 const GG = <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h6.2a5.3 5.3 0 01-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.4z" /><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A11.5 11.5 0 0012 23.5z" /><path fill="#FBBC05" d="M5.6 14.2a6.9 6.9 0 010-4.4v-3H1.8a11.5 11.5 0 000 10.4z" /><path fill="#EA4335" d="M12 5.4c1.7 0 3.2.6 4.4 1.7l3.3-3.3A11.5 11.5 0 001.8 6.8l3.8 3A6.9 6.9 0 0112 5.4z" /></svg>;
-const AP = <svg width="12" height="14" viewBox="0 0 24 24" aria-hidden><path fill="#111" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.5.9s-1.8-.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7 2-1.1 2.8-2.2c.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.5-1-2.5-3.9zM14.100 5.700c.6-.8 1.100-1.900.9-3-.9 0-2.100.6-2.700 1.400-.6.700-1.100 1.800-1 2.900 1 .1 2.100-.5 2.800-1.300z" /></svg>;
-const GP = <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9.500" fill="none" stroke="#111" strokeWidth="1.800" /><path d="M12 6l4.500 2.600v5.200L12 16.400l-4.500-2.600V8.600z M12 6v10.400 M7.500 8.600l9 5.200 M16.500 8.600l-9 5.200" fill="none" stroke="#111" strokeWidth="1.300" /></svg>;
-const SS = <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden />;
 function Cube({ s = 38 }: { s?: number }) {
   return <svg width={s} height={s} viewBox="0 0 40 40" aria-hidden><path d="M19 4 3 10.600a1.100 1.100 0 0 0 0 2l16.100 6.400a3.600 3.600 0 0 0 2.700 0l16.100-6.400a1.100 1.100 0 0 0 0-2L21.800 4a3.600 3.600 0 0 0-2.700 0z" fill="#111" /><path d="M21.700 22.500v14.400a1 1 0 0 0 1.400.9l16-6.300a1 1 0 0 0 .6-.9V16.200a1 1 0 0 0-1.400-.9l-16 6.300a1 1 0 0 0-.6.900z" fill="#111" /><path d="M17.800 23.600l-5.400 2.600-.6.300L2 31.200a1 1 0 0 1-1.500-.9V16.300a1 1 0 0 1 1.400-.9l15.900 6.200a1 1 0 0 1 0 2z" fill="#111" transform="translate(1.700 0.600)" /></svg>;
 }
@@ -33,7 +30,6 @@ export function AuthScreen({ config, demo, to, signup = false }: { config: Fireb
   const [foc, setFoc] = useState(false);
   const su = a.mode === "signup", reset = a.mode === "reset";
   const ready = a.email.trim().length > 3;
-  const prov = (icon: React.ReactNode, a1: string, b: string) => <button type="button" className="at-au-prov" aria-disabled="true" title="Not available yet in the open-source version" onClick={a.off}>{icon}<span>{a1}<b>{b}</b></span></button>;
   return <main className={`at-au${su ? " su" : ""}`}>
     <div className="at-au-col">
       <Link href="/" aria-label="Home" className="at-au-logo"><Cube s={su ? 34 : 36} /></Link>
@@ -47,10 +43,7 @@ export function AuthScreen({ config, demo, to, signup = false }: { config: Fireb
       </form>
       {!reset && <>
         <div className="at-au-or">or</div>
-        {prov(SS, "Continue with ", "Single Sign On")}
-        <button type="button" className="at-au-prov" onClick={a.google} disabled={a.busy}>{GG}<span>Continue with <b>Google</b></span></button>
-        {prov(AP, "Continue with ", su ? "Apple" : "Apple ID")}
-        {prov(GP, "Continue with ", "ChatGPT")}</>}
+        <button type="button" className="at-au-prov" onClick={a.google} disabled={a.busy}>{GG}<span>Continue with <b>Google</b></span></button></>}
       <p className="at-au-legal">{su ? <>By using Airtable, you agree to the <a href="#" onClick={a.off}>Terms of Service</a> and <a href="#" onClick={a.off}>Privacy Policy</a>.</> : <>By signing up, you agree to the <a href="#" onClick={a.off}>Terms of Service</a> and <a href="#" onClick={a.off}>Privacy Policy</a>.</>}</p>
       <p className="at-au-legal">Manage your cookie preferences <a href="#" onClick={a.off} className="b">here</a></p>
       <p className="at-au-sw">{reset ? <a href="#" onClick={a.go("signin")}>Back to sign in</a> : su ? <>Already have an account? <a href="#" onClick={a.go("signin")}>Sign in</a></> : <>New to Airtable? <a href="#" onClick={a.go("signup")}>Create an account</a> · <a href="#" onClick={a.go("reset")}>Forgot password?</a></>}</p>

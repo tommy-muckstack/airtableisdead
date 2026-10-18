@@ -11,9 +11,9 @@ export const EVENTS = {
   app_signed_out: "app_signed_out",
   app_table_created: "app_table_created",     // tables (count after)
   app_table_deleted: "app_table_deleted",     // tables (count after)
-  app_record_created: "app_record_created",   // source ("grid" | "kanban")
+  app_record_created: "app_record_created",   // via ("grid" | "kanban")
   app_record_duplicated: "app_record_duplicated",
-  app_records_deleted: "app_records_deleted", // count, source ("row_menu" | "bulk" | "record_modal")
+  app_records_deleted: "app_records_deleted", // count, via ("row_menu" | "bulk" | "record_modal")
   app_field_added: "app_field_added",         // field_type (text | longtext | number | checkbox | select | multiselect | date | url)
   app_view_created: "app_view_created",       // view_type ("grid" | "kanban")
   app_csv_imported: "app_csv_imported",       // records, fields (counts)

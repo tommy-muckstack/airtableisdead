@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { addRecord, display, field, kanbanLanes, moveCard, newOpt, setOptions, type Table, type View } from "@/lib/airtable/model";
 import { Chips } from "./Cell";
+import { track, EVENTS } from "@/lib/analytics";
 
 export function Kanban({ table, view, onTable, onOpen, onGroup }: { table: Table; view: View; onTable: (f: (t: Table) => Table) => void; onOpen: (id: string) => void; onGroup: (fieldId: string) => void }) {
   const [over, setOver] = useState<string | null>(null); const [stack, setStack] = useState("");
@@ -18,7 +19,7 @@ export function Kanban({ table, view, onTable, onOpen, onGroup }: { table: Table
         {shown.map(f => { const v = r.cells[f.id]; if (v == null || v === "" || (Array.isArray(v) && !v.length) || v === false) return null;
           return <div key={f.id} className="atb-card__f"><span className="ids-muted">{f.name}</span>{f.type === "select" || f.type === "multiselect" ? <span className="atb-chips"><Chips f={f} v={v} /></span> : <span>{display(f, v)}</span>}</div>; })}
       </article>)}
-      <button className="atb-lane__add" aria-label={`Add card to ${l.name}`} onClick={() => { const r = addRecord(table, l.id ? { [g.id]: l.id } : {}); onTable(() => r.table); onOpen(r.record.id); }}>＋ Add card</button>
+      <button className="atb-lane__add" aria-label={`Add card to ${l.name}`} onClick={() => { const r = addRecord(table, l.id ? { [g.id]: l.id } : {}); onTable(() => r.table); track(EVENTS.app_record_created, { source: "kanban" }); onOpen(r.record.id); }}>＋ Add card</button>
     </section>)}
     <form className="atb-lane atb-lane--new" onSubmit={e => { e.preventDefault(); const nm = stack.trim(); if (!nm) return; onTable(t => setOptions(t, g.id, [...(field(t, g.id)?.options ?? []), newOpt(nm, field(t, g.id)?.options?.length ?? 0)])); setStack(""); }}>
       <input className="ids-input" aria-label="New stack name" placeholder="＋ Add stack" value={stack} onChange={e => setStack(e.target.value)} /></form>

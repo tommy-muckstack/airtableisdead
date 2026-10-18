@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { COLORS, FIELD_TYPES, OPS_BY_TYPE, changeFieldType, deleteField, field, newOpt, renameField, setOptions, uid, updateView, type Field, type FieldType, type Filter, type Table, type View } from "@/lib/airtable/model";
 import { CellEditor, CellView, TYPE_ICON } from "./Cell";
+import { track, EVENTS } from "@/lib/analytics";
 
 type TP = { table: Table; view: View; onTable: (f: (t: Table) => Table) => void };
 const patch = (p: TP, v: Partial<View>) => p.onTable(t => updateView(t, p.view.id, v));
@@ -80,7 +81,7 @@ export function RecordModal({ table, recId, onTable, onClose, notify }: { table:
     <div className="atb-record__body">{table.fields.map(f => <div key={f.id} className="atb-record__f"><label><span className="atb-ti">{TYPE_ICON[f.type]}</span>{f.name}</label>
       <div className="atb-record__v">{f.type === "checkbox" ? <input type="checkbox" aria-label={f.name} checked={!!r.cells[f.id]} onChange={e => onTable(t => ({ ...t, records: t.records.map(x => (x.id === r.id ? { ...x, cells: { ...x.cells, [f.id]: e.target.checked } } : x)) }))} />
         : <RecordField f={f} v={r.cells[f.id]} open={edit === f.id} setOpen={o => setEdit(o ? f.id : null)} onCommit={v => onTable(t => ({ ...t, records: t.records.map(x => (x.id === r.id ? { ...x, cells: { ...x.cells, [f.id]: v } } : x)) }))} notify={notify} />}</div></div>)}</div>
-    <footer><button className="iconbtn is-danger" onClick={() => { onTable(t => ({ ...t, records: t.records.filter(x => x.id !== r.id) })); onClose(); notify("Record deleted"); }}>Delete record</button></footer></div></div>;
+    <footer><button className="iconbtn is-danger" onClick={() => { onTable(t => ({ ...t, records: t.records.filter(x => x.id !== r.id) })); onClose(); notify("Record deleted"); track(EVENTS.app_records_deleted, { count: 1, via: "record_modal" }); }}>Delete record</button></footer></div></div>;
 }
 function RecordField({ f, v, open, setOpen, onCommit, notify }: { f: Field; v: any; open: boolean; setOpen: (o: boolean) => void; onCommit: (v: any) => void; notify: (m: string) => void }) {
   if (open) return <CellEditor f={f} v={v} onCommit={nv => { onCommit(nv); if (f.type !== "multiselect") setOpen(false); }} onCancel={() => setOpen(false)} onError={notify} />;
